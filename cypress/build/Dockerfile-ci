@@ -1,0 +1,45 @@
+FROM ubuntu:latest
+
+RUN sed -i s@/archive.ubuntu.com/@/mirrors.tuna.tsinghua.edu.cn/@g /etc/apt/sources.list
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y curl && \
+    apt-get clean all && rm -rf /var/lib/apt/lists/*
+
+# Install Node
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
+    apt-get update && \
+    apt-get install -y nodejs && \
+    apt-get clean all && rm -rf /var/lib/apt/lists/*
+
+# Install allure
+RUN curl -sL https://hub.fastgit.xyz/allure-framework/allure2/releases/download/2.17.3/allure_2.17.3-1_all.deb -o /tmp/allure_2.deb  && \
+    apt-get update && \
+    apt-get install -y /tmp/allure_2.deb && \
+    rm -f /tmp/allure_2.deb && \
+    apt-get clean all && rm -rf /var/lib/apt/lists/*
+
+# Install yarn, cypress
+RUN npm config set registry 'https://registry.npm.taobao.org' && \
+    npm install -g yarn && \
+    yarn config set registry 'https://registry.npm.taobao.org' && \
+    npm install -g --unsafe-perm cypress && \
+    npm cache clean --force
+
+# Install cypress-dependencies
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    libgtk2.0-0 \
+    libgtk-3-0 \
+    libgbm-dev \
+    libnotify-dev \
+    libgconf-2-4 \
+    libnss3 \
+    libxss1 \
+    libasound2 \
+    libxtst6 \
+    xauth \
+    xvfb && \
+    apt-get clean all && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
